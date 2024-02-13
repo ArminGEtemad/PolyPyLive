@@ -90,7 +90,7 @@ channel_config = _ChannelConfig(channel=2,
                                 falling=False)
 ```
 
-In the next part, you can confing your ==real-time visualization== spectrum. Meaning, even if you choose 'S2' only
+In the next part, you can confing your **real-time visualization** spectrum. Meaning, even if you choose 'S2' only
 power spectrum is being shown. In the background, however, all the 'S1', 'S2', 'S3' and 'S4' as well as their 
 average are being calculated. The backend can be chosen according to signalsnap. You have to choose a maximum for
 the frequency in $Hz$. In this example `f_max=2000` means $2000Hz$. If you choose a coherent signal the estimators
