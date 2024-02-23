@@ -1,11 +1,6 @@
-# This file is part of PolyPyLive
-# 
-# This software is provided under the terms of the 3-Clause BSD License-
-# For details, see the LICENSE file in this repository or
-# https://opensource.org/licenses/BSD-3-Clause
-
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.colors as colors
 import TimeTagger
 import signalsnap as snp
@@ -390,7 +385,8 @@ class _StreamSetup:
                                             spectrum_size=self.plot_config.data_points,
                                             order_in='all',
                                             backend=self.signal_config.backend,
-                                            m=7,
+                                            show_first_frame=False,
+                                            m=5,
                                             m_var=3,
                                             coherent=self.signal_config.coherent)
                 
@@ -509,17 +505,6 @@ class _StreamSetup:
                     else:
                         pass
 
-                    #if self.plot_config.arcsinh_scale:
-                    #    ser_rt_sigma = arcsinh_scale(serr[self.signal_config.signal_choice_ID]*self.plot_config.sigma, self.plot_config.arcsinh_const)
-                    #    data_rt =  arcsinh_scale(s[self.signal_config.signal_choice_ID], self.plot_config.arcsinh_const)
-                    #    err_rt_matrix = np.zeros_like(data_rt)
-                    #    err_rt_matrix[data_avg < ser_rt_sigma] = 1
-                    #else:
-                    #    ser_avg_sigma = serr_avg[self.signal_config.signal_choice_ID]*self.plot_config.sigma
-                    #    data_avg = s_avg[self.signal_config.signal_choice_ID]
-                    #    err_avg_matrix = np.zeros_like(data_avg)
-                    #    err_avg_matrix[data_avg < ser_avg_sigma] = 1
-
                     if self.plot_config.arcsinh_scale:
                         ser_avg_sigma = arcsinh_scale(serr_avg[self.signal_config.signal_choice_ID]*self.plot_config.sigma, self.plot_config.arcsinh_const)
                         data_avg =  arcsinh_scale(s_avg[self.signal_config.signal_choice_ID], self.plot_config.arcsinh_const)
@@ -618,7 +603,7 @@ data_acq_config = _DataAcqConfig(buffer_size=10000000,
 
 signal_config = _SignalConfig(signal_choice='S2',
                               backend='cuda',
-                              f_max=4e5,
+                              f_max=4000,
                               coherent=True)
 
 plot_config = _PlotConfig(data_points=200,
@@ -628,6 +613,6 @@ plot_config = _PlotConfig(data_points=200,
 
 stream_setup = _StreamSetup(tagger_controller.tagger, channel_config, data_acq_config, signal_config, plot_config)
 stream_setup.start()
-stream_setup.process_data()
+stream_setup.process_data()  # Process and print the data
 
 tagger_controller.free()
