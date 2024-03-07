@@ -555,7 +555,7 @@ class _StreamSetup:
  
                     contour_avg = ax_avg.pcolormesh(np.real(f[self.signal_config.signal_choice_ID]),
                                                     np.real(f[self.signal_config.signal_choice_ID]),
-                                                    s_avg[self.signal_config.signal_choice_ID],
+                                                    data_avg,
                                                     cmap='seismic',
                                                     norm=norm_avg,
                                                     zorder=1)
