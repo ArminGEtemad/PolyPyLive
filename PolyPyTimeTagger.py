@@ -255,6 +255,8 @@ class _PlotConfig:
     ----------
     data_points : int
         The number of data points to be plotted.
+    green_alpha : float
+        Opacity of the green error.
     arcsinh_scale : bool, optional
         Indicates whether arcsinh scaling should be applied to the data points to
         improve visibility. Default is False.
@@ -264,10 +266,11 @@ class _PlotConfig:
     sigma : float, optional
         The standard deviation for Gaussian smoothing of the data. Default is 1.
     '''
-    def __init__(self, data_points, arcsinh_scale=False, arcsinh_const=0.02,
+    def __init__(self, data_points, green_alpha=0.4, arcsinh_scale=False, arcsinh_const=0.02,
                  sigma=1):
         
         self.data_points = data_points
+        self.green_alpha = green_alpha
         self.arcsinh_scale = arcsinh_scale
         self.arcsinh_const = arcsinh_const
         self.sigma = sigma
@@ -563,7 +566,7 @@ class _StreamSetup:
 
                     # Update the average spectrum plot
                     ax_avg.clear()
-                    color_array = np.array([[0., 0., 0., 0.], [0., 0.5, 0., 0.4]])
+                    color_array = np.array([[0., 0., 0., 0.], [0., 0.5, 0., self.plot_config.green_alpha]])
                     cmap_sigma = colors.LinearSegmentedColormap.from_list(name='green_alpha', colors=color_array)
 
                     contour_avg = ax_avg.pcolormesh(np.real(f[self.signal_config.signal_choice_ID]),
