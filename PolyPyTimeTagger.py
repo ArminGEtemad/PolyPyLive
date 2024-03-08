@@ -408,8 +408,8 @@ class _StreamSetup:
                             serr_avg[key] = np.sqrt(serr_avg[key]**2 + np.real(serr[key])**2)
 
                     # Compute the average spectrum and update the dictionary
-                    s_avg[key] /= chunk_counter
-                    serr_avg[key] /= chunk_counter
+                    s_avg[key] /= 2
+                    serr_avg[key] /= 2
 
                     
                     if self.data_acq_config.save:
@@ -486,8 +486,8 @@ class _StreamSetup:
                             serr_avg[key] = np.sqrt(serr_avg[key]**2 + np.real(serr[key])**2)
 
                     # Compute the average spectrum and update the dictionary
-                    s_avg[key] /= chunk_counter
-                    serr_avg[key] /= chunk_counter
+                    s_avg[key] /= 2
+                    serr_avg[key] /= 2
 
                     if self.data_acq_config.save:
 
@@ -506,11 +506,21 @@ class _StreamSetup:
                         pass
 
                     if self.plot_config.arcsinh_scale:
+                        ser_sigma = arcsinh_scale(np.real(serr[self.signal_config.signal_choice_ID])*self.plot_config.sigma, self.plot_config.arcsinh_const)
+                        data =  arcsinh_scale(np.real(s[self.signal_config.signal_choice_ID]), self.plot_config.arcsinh_const)
+                        err_matrix = np.zeros_like(data)
+                        err_matrix[data < ser_sigma] = 1
+                        
                         ser_avg_sigma = arcsinh_scale(serr_avg[self.signal_config.signal_choice_ID]*self.plot_config.sigma, self.plot_config.arcsinh_const)
                         data_avg =  arcsinh_scale(s_avg[self.signal_config.signal_choice_ID], self.plot_config.arcsinh_const)
                         err_avg_matrix = np.zeros_like(data_avg)
                         err_avg_matrix[data_avg < ser_avg_sigma] = 1
                     else:
+                        ser_sigma = np.real(serr[self.signal_config.signal_choice_ID])*self.plot_config.sigma
+                        data =  np.real(s[self.signal_config.signal_choice_ID])
+                        err_matrix = np.zeros_like(data)
+                        err_matrix[data < ser_sigma] = 1
+                        
                         ser_avg_sigma = serr_avg[self.signal_config.signal_choice_ID]*self.plot_config.sigma
                         data_avg = s_avg[self.signal_config.signal_choice_ID]
                         err_avg_matrix = np.zeros_like(data_avg)
@@ -527,6 +537,16 @@ class _StreamSetup:
                     norm_avg = colors.TwoSlopeNorm(vmin=-abs_avg_max, vcenter=0, vmax=abs_avg_max)
 
                     ax_rt.clear()
+                    color_array = np.array([[0., 0., 0., 0.], [0., 0.5, 0., self.plot_config.green_alpha]])
+                    cmap_sigma = colors.LinearSegmentedColormap.from_list(name='green_alpha', colors=color_array)
+
+                    contour_rt = ax_rt.pcolormesh(np.real(f[self.signal_config.signal_choice_ID]),
+                                                 np.real(f[self.signal_config.signal_choice_ID]),
+                                                 err_matrix,
+                                                 vmin=0, vmax=1,
+                                                 cmap=cmap_sigma,
+                                                 zorder=2)
+                    
                     contour_rt = ax_rt.pcolormesh(np.real(f[self.signal_config.signal_choice_ID]),
                                                 np.real(f[self.signal_config.signal_choice_ID]),
                                                 np.real(s[self.signal_config.signal_choice_ID]),
@@ -559,7 +579,6 @@ class _StreamSetup:
                                                     cmap='seismic',
                                                     norm=norm_avg,
                                                     zorder=1)
-                    
                     
                     ax_avg.set_title('Average Spectrum')
                     if self.colorbar_avg is None:
@@ -612,7 +631,7 @@ plot_config = _PlotConfig(data_points=200,
                           sigma=3)
 
 stream_setup = _StreamSetup(tagger_controller.tagger, channel_config, data_acq_config, signal_config, plot_config)
+
 stream_setup.start()
 stream_setup.process_data()  # Process and print the data
-
 tagger_controller.free()
