@@ -237,12 +237,14 @@ class _SignalConfig:
                 'cuda': 'Nvidia - CUDA',
                 'opencl': 'AMD - OpenCL'}
     
-    def __init__(self, signal_choice, backend, f_max, f_min=0., coherent=False):
+    def __init__(self, signal_choice, backend, f_max, f_min=0., m=5, m_var=3, coherent=False):
         self.signal_choice = signal_choice
         self.signal_choice_ID = self.SIGNALS[signal_choice]
         self.backend = backend
         self.f_max = f_max
         self.f_min = f_min
+        self.m = m
+        self.m_var = m_var
         self.coherent = coherent
 
 
@@ -266,11 +268,12 @@ class _PlotConfig:
     sigma : float, optional
         The standard deviation for Gaussian smoothing of the data. Default is 1.
     '''
-    def __init__(self, data_points, green_alpha=0.4, arcsinh_scale=False, arcsinh_const=0.02,
+    def __init__(self, data_points, green_alpha=0.4, gray_alpha=0.5, arcsinh_scale=False, arcsinh_const=0.02,
                  sigma=1):
         
         self.data_points = data_points
         self.green_alpha = green_alpha
+        self.gray_alpha = gray_alpha
         self.arcsinh_scale = arcsinh_scale
         self.arcsinh_const = arcsinh_const
         self.sigma = sigma
@@ -334,7 +337,11 @@ class _StreamSetup:
         self.stream = None
         self.colorbar_rt = None
         self.colorbar_avg = None
-        self.keys_to_process = [1, 2, 3, 4]
+
+        if self.signal_config.f_min == 0.:
+            self.keys_to_process = [1, 2, 3, 4]
+        else:
+            self.keys_to_process = [1, 2, 4]
     
     def apply_config(self):
         # These are working right now for only one channel.
@@ -389,8 +396,8 @@ class _StreamSetup:
                                             order_in='all',
                                             backend=self.signal_config.backend,
                                             show_first_frame=False,
-                                            m=5,
-                                            m_var=3,
+                                            m=self.signal_config.m,
+                                            m_var=self.signal_config.m_var,
                                             coherent=self.signal_config.coherent)
                 
                 RSspec = snp.SpectrumCalculator(config_ss)
@@ -444,7 +451,7 @@ class _StreamSetup:
 
                     ax_rt.plot(f[2], data)
                     # Fill the area between the upper and lower bounds to represent the error
-                    ax_rt.fill_between(f[2], lower_bound_1, upper_bound_1, color='gray', alpha=0.5, label='Error')
+                    ax_rt.fill_between(f[2], lower_bound_1, upper_bound_1, color='gray', alpha=self.plot_config.gray_alpha , label='Error')
 
                     ax_rt.set_title('Real-Time Spectrum')
                     ax_rt.set_ylabel(r'$S^{(2)}_z$' + f' [Hz' + r'$^{-1}$' + ']')
@@ -625,8 +632,9 @@ data_acq_config = _DataAcqConfig(buffer_size=10000000,
 
 signal_config = _SignalConfig(signal_choice='S2',
                               backend='cuda',
+                              m = 10,
                               f_max=4000,
-                              coherent=True)
+                              coherent=False)
 
 plot_config = _PlotConfig(data_points=200,
                           arcsinh_scale=False,
