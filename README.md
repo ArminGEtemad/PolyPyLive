@@ -34,13 +34,13 @@ data_acq_config = _DataAcqConfig(buffer_size=10000000,
                                  duration=int(30e7),
                                  delay=0,
                                  time_stamp_measure='s',
-                                 save=True,
-                                 save_path='your path')
+                                 save=False)
 
 signal_config = _SignalConfig(signal_choice='S2',
                               backend='cuda',
-                              f_max=2000,
-                              coherent=True)
+                              m = 10,
+                              f_max=4000,
+                              coherent=False)
 
 plot_config = _PlotConfig(data_points=200,
                           arcsinh_scale=False,
@@ -48,9 +48,9 @@ plot_config = _PlotConfig(data_points=200,
                           sigma=3)
 
 stream_setup = _StreamSetup(tagger_controller.tagger, channel_config, data_acq_config, signal_config, plot_config)
-stream_setup.start()
-stream_setup.process_data()
 
+stream_setup.start()
+stream_setup.process_data()  # Process and print the data
 tagger_controller.free()
 ```
 We can look at this code in details in the following:
@@ -89,10 +89,12 @@ channel_config = _ChannelConfig(channel=2,
                                 falling=False)
 ```
 
-In the next step, you can verify your real-time visualization spectrum. This means that even if you select 'S2', the power spectrum will be displayed. However, in the background, all 'S1', 'S2', 'S3', and 'S4', as well as their averages, are being calculated. You can select the backend according to signalsnap. You need to specify a maximum frequency in Hz. For example, if you set `f_max=2000`, it means 2000Hz. If you choose a coherent signal, the estimators will be moment-based. If you select `coherent=False`, the estimators will be cumulant-based.
+In the next step, you can verify your real-time visualization spectrum. This means that even if you select 'S2', the power spectrum will be displayed. However, in the background, all 'S1', 'S2', 'S3', and 'S4', as well as their averages, are being calculated. You can select the backend according to signalsnap. The number `m`is the number of windows SignalSnaps needs to estimate cumulants. The larger `m` the faster the calculation. Furthermore, you need to specify a maximum frequency in Hz. For example, if you set `f_max=2000`, it means 2000Hz. If you choose a coherent signal, the estimators will be moment-based. If you select `coherent=False`, the estimators will be cumulant-based.
+It is optional to specify a minimum frequency. However, such setting automatically excludes 'S3' from calculations.
 ```Python
 signal_config = _SignalConfig(signal_choice='S2',
                               backend='cuda',
+                              m = 10,
                               f_max=2000,
                               coherent=True)
 ```
