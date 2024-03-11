@@ -225,6 +225,10 @@ class _SignalConfig:
         The maximum frequency for the signal filter.
     f_min : float, optional
         The minimum frequency for the signal filter. Default is 0.0.
+    m : int, optional
+        Number of windows for the estimation of the cumulant
+    m_var : int, optional
+        m_var single spectra are used at a time for the calculation of the spectral errors
     coherent : bool, optional
         Indicates whether coherent signal processing is enabled. Default is False.
     '''
@@ -256,9 +260,11 @@ class _PlotConfig:
     Attributes
     ----------
     data_points : int
-        The number of data points to be plotted.
+        The number of data points to be plotted. The higher data_points the higher the resolution
     green_alpha : float
         Opacity of the green error.
+    gray_alpha : float
+        Opacity of the S2 error bar.
     arcsinh_scale : bool, optional
         Indicates whether arcsinh scaling should be applied to the data points to
         improve visibility. Default is False.
@@ -337,6 +343,9 @@ class _StreamSetup:
         self.stream = None
         self.colorbar_rt = None
         self.colorbar_avg = None
+
+        # key_to_process are the spectra to be calculated. If the user chooses anything other than 0. for
+        # f_min S3 will be excluded from the calculations. 
 
         if self.signal_config.f_min == 0.:
             self.keys_to_process = [1, 2, 3, 4]
