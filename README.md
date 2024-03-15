@@ -15,7 +15,7 @@ PolyPyLive has been tested in a controlled environment and is now ready for depl
 
 This initial alpha version of PolyPyLive supports single-channel data acquisition. We are actively working to extend its capabilities to include multi-channel support in upcoming releases. Please be aware that the software saves data with the filename `data.pkl` by default; users have the flexibility to choose the storage directory path. 
 
-## Example
+## Example/TimeTagger Swabian Instrument
 
 ```Python
 # This script can be used by cloning the repository and adjusting
