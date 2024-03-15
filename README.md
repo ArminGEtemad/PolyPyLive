@@ -9,7 +9,7 @@ PolyPyLive is designed to seamlessly integrate SignalSnap with streaming devices
 
 ## Testing and Readiness
 
-PolyPyLive has been tested in a controlled environment and is now ready for deployment in laboratory settings. As we strive to refine and enhance its functionality, we actively seek feedback from experimentalists. Your insights are invaluable to us for driving further improvements and ensuring that PolyPyLive meets the real-world demands of signal measurement research and development. We encourage users to share their experiences and suggestions. This revision emphasizes the readiness of the library for laboratory use while also making a clear call to action for feedback from the community, which is crucial for the iterative development process.
+PolyPyLive has been tested for detcting radio signals and is now ready for deployment in laboratory settings. As we strive to refine and enhance its functionality, we actively seek feedback from experimentalists. Your insights are invaluable to us for driving further improvements and ensuring that PolyPyLive meets the real-world demands of signal measurement research and development. We encourage users to share their experiences and suggestions. This revision emphasizes the readiness of the library for laboratory use while also making a clear call to action for feedback from the community, which is crucial for the iterative development process.
 
 ## Caution and Future Development
 
