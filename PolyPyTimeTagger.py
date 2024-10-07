@@ -373,7 +373,7 @@ class _StreamSetup:
         self.stream.startFor(self.data_acq_config.duration)
     
     def process_data(self):
-        chunk_counter = 1
+        chunk_counter = 0
         s_avg = {}
         serr_avg = {}
         plt.ion()
@@ -387,6 +387,7 @@ class _StreamSetup:
 
         while self.stream.isRunning() and not self.should_close:
             data = self.stream.getData()
+            chunk_counter += 1
 
             if data.size == self.data_acq_config.buffer_size:
                 print('TimeTagStream buffer is filled completely. Events arriving after the buffer has been filled have been discarded. Please increase the buffer size not to miss any events.')
@@ -427,15 +428,15 @@ class _StreamSetup:
                             serr_avg[key] = np.sqrt(serr_avg[key]**2 + np.real(serr[key])**2)
 
                     # Compute the average spectrum and update the dictionary
-                    s_avg[key] /= 2
-                    serr_avg[key] /= 2
+                    #s_avg[key] /= chunk_counter
+                    #serr_avg[key] /= chunk_counter
 
                     
                     if self.data_acq_config.save:
 
-                        RSspec.S = s_avg
+                        RSspec.S = s_avg/chunk_counter
                         RSspec.freq = f
-                        RSspec.S_err = serr_avg
+                        RSspec.S_err = serr_avg/chunk_counter
 
                         save_path = self.data_acq_config.save_path
                         if save_path is None:
@@ -469,13 +470,13 @@ class _StreamSetup:
                     # Plot the average spectrum
                     ax_avg.clear()
                     if self.plot_config.arcsinh_scale:
-                        data_avg = arcsinh_scale(s_avg[2], self.plot_config.arcsinh_const)
-                        upper_bound_2 = arcsinh_scale(s_avg[2] + serr_avg[2]*self.plot_config.sigma, self.plot_config.arcsinh_const)
-                        lower_bound_2 = arcsinh_scale(s_avg[2] - serr_avg[2]*self.plot_config.sigma, self.plot_config.arcsinh_const)
+                        data_avg = arcsinh_scale(s_avg[2]/chunk_counter, self.plot_config.arcsinh_const)
+                        upper_bound_2 = arcsinh_scale((s_avg[2] + serr_avg[2]*self.plot_config.sigma)/chunk_counter, self.plot_config.arcsinh_const)
+                        lower_bound_2 = arcsinh_scale((s_avg[2] - serr_avg[2]*self.plot_config.sigma)/chunk_counter, self.plot_config.arcsinh_const)
                     else:
-                        data_avg = s_avg[2]
-                        upper_bound_2 = s_avg[2] + serr_avg[2]*self.plot_config.sigma
-                        lower_bound_2 = s_avg[2] - serr_avg[2]*self.plot_config.sigma
+                        data_avg = (s_avg[2])/chunk_counter
+                        upper_bound_2 = (s_avg[2] + serr_avg[2]*self.plot_config.sigma)/chunk_counter
+                        lower_bound_2 = (s_avg[2] - serr_avg[2]*self.plot_config.sigma)/chunk_counter
 
                     ax_avg.plot(f[2], data_avg)
                     # Fill the area between the upper and lower bounds to represent the error
@@ -505,14 +506,14 @@ class _StreamSetup:
                             serr_avg[key] = np.sqrt(serr_avg[key]**2 + np.real(serr[key])**2)
 
                     # Compute the average spectrum and update the dictionary
-                    s_avg[key] /= 2
-                    serr_avg[key] /= 2
+                    #s_avg[key] /= 2
+                    #serr_avg[key] /= 2
 
                     if self.data_acq_config.save:
 
-                        RSspec.S = s_avg
+                        RSspec.S = s_avg/chunk_counter
                         RSspec.freq = f
-                        RSspec.S_err = serr_avg
+                        RSspec.S_err = serr_avg/chunk_counter
 
                         save_path = self.data_acq_config.save_path
                         if save_path is None:
@@ -530,8 +531,8 @@ class _StreamSetup:
                         err_matrix = np.zeros_like(data)
                         err_matrix[data < ser_sigma] = 1
                         
-                        ser_avg_sigma = arcsinh_scale(serr_avg[self.signal_config.signal_choice_ID]*self.plot_config.sigma, self.plot_config.arcsinh_const)
-                        data_avg =  arcsinh_scale(s_avg[self.signal_config.signal_choice_ID], self.plot_config.arcsinh_const)
+                        ser_avg_sigma = arcsinh_scale((serr_avg[self.signal_config.signal_choice_ID]*self.plot_config.sigma)/chunk_counter, self.plot_config.arcsinh_const)
+                        data_avg =  arcsinh_scale((s_avg[self.signal_config.signal_choice_ID])/chunk_counter, self.plot_config.arcsinh_const)
                         err_avg_matrix = np.zeros_like(data_avg)
                         err_avg_matrix[data_avg < ser_avg_sigma] = 1
                     else:
@@ -540,8 +541,8 @@ class _StreamSetup:
                         err_matrix = np.zeros_like(data)
                         err_matrix[data < ser_sigma] = 1
                         
-                        ser_avg_sigma = serr_avg[self.signal_config.signal_choice_ID]*self.plot_config.sigma
-                        data_avg = s_avg[self.signal_config.signal_choice_ID]
+                        ser_avg_sigma = (serr_avg[self.signal_config.signal_choice_ID]*self.plot_config.sigma)/chunk_counter
+                        data_avg = (s_avg[self.signal_config.signal_choice_ID])/chunk_counter
                         err_avg_matrix = np.zeros_like(data_avg)
                         err_avg_matrix[data_avg < ser_avg_sigma] = 1
 
@@ -616,8 +617,8 @@ class _StreamSetup:
                     plt.pause(0.1)
 
                     
-                    print(chunk_counter)
-                    chunk_counter += 1
+                    #print(chunk_counter)
+                    #chunk_counter += 1
                     if self.should_close:
                         break
                 
