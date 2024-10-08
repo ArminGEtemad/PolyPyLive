@@ -434,9 +434,9 @@ class _StreamSetup:
                     
                     if self.data_acq_config.save:
 
-                        RSspec.S = s_avg/chunk_counter
+                        RSspec.S = {key: value / chunk_counter for key, value in s_avg.items()}
                         RSspec.freq = f
-                        RSspec.S_err = serr_avg/chunk_counter
+                        RSspec.S_err = {key: value / chunk_counter for key, value in serr_avg.items()}
 
                         save_path = self.data_acq_config.save_path
                         if save_path is None:
